@@ -1,6 +1,6 @@
 Completed:
 - IdException Handling
-- Change to read lec.txt
+- Change to read lec.txt (took fucking forever)
 
 To-Do:
 - ALL exception handling
