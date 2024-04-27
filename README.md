@@ -7,4 +7,5 @@ To-Do:
 - Main menu
 
 Working on:
-Logan -> Main Menu
+- Logan -> Main Menu
+- Parker -> 
