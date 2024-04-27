@@ -347,8 +347,9 @@ class ClassInfo {
         List<ClassInfo> classInfoList = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
             String line;
+            ClassInfo currentClass = null;
             while ((line = br.readLine()) != null) {
-                String[] parts = line.split(",");
+                String[] parts = line.split(",\\s*"); // Split with comma followed by optional whitespace
                 if (parts.length < 6) {
                     continue; // Skip invalid lines
                 }
@@ -363,6 +364,9 @@ class ClassInfo {
                 int creditHours = 0;
 
                 if (modality.equalsIgnoreCase("Online")) {
+                    if (parts.length != 6) {
+                        continue; // Skip invalid online class lines
+                    }
                     creditHours = Integer.parseInt(parts[5]);
                 } else {
                     if (parts.length < 8) {
@@ -373,13 +377,18 @@ class ClassInfo {
                     creditHours = Integer.parseInt(parts[7]);
                 }
 
-                ClassInfo classInfo = new ClassInfo(classNumber, prefix, title, level, modality, location, hasLab, creditHours);
-                classInfoList.add(classInfo);
+                if (hasLab) {
+                    currentClass = new ClassInfo(classNumber, prefix, title, level, modality, location, hasLab, creditHours);
+                    classInfoList.add(currentClass);
+                } else {
+                    ClassInfo classInfo = new ClassInfo(classNumber, prefix, title, level, modality, location, hasLab, creditHours);
+                    classInfoList.add(classInfo);
+                }
 
                 if (hasLab) {
                     // Read lab locations
                     while ((line = br.readLine()) != null && !line.contains(",")) {
-                        classInfo.addLabLocation(line);
+                        currentClass.addLabLocation(line);
                     }
                 }
             }
