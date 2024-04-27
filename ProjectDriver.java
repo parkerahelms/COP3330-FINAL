@@ -10,7 +10,11 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Scanner;
+import java.util.HashMap;
+import java.util.Map;
 
 // Custom exception class for handling ID related exceptions
 class IdException extends Exception implements Serializable {
@@ -22,48 +26,234 @@ class IdException extends Exception implements Serializable {
 }
 
 //---------------------------
+/*
+// Assuming you have parsed the class information from the file and stored it in a List<ClassInfo> variable named classInfoList
+
+// Iterate through each ClassInfo object in the list
+for (ClassInfo classInfo : classInfoList) {
+    // Access and print class information using getters
+    System.out.println("Class Number: " + classInfo.getClassNumber());
+    System.out.println("Prefix: " + classInfo.getPrefix());
+    System.out.println("Title: " + classInfo.getTitle());
+    System.out.println("Level: " + classInfo.getLevel());
+    System.out.println("Modality: " + classInfo.getModality());
+    if (!classInfo.getModality().equalsIgnoreCase("Online")) {
+        System.out.println("Location: " + classInfo.getLocation());
+        System.out.println("Has Lab: " + (classInfo.isHasLab() ? "Yes" : "No"));
+    }
+    System.out.println("Credit Hours: " + classInfo.getCreditHours());
+    if (classInfo.isHasLab()) {
+        System.out.println("Lab Locations:");
+        for (String labLocation : classInfo.getLabLocations()) {
+            System.out.println("\t" + labLocation);
+        }
+    }
+    System.out.println(); // Add a newline for better readability between classes
+}
+*/
+
+/*
+//Test parsing of lect.txt
+for (ClassInfo classInfo : classInfoList) {
+    System.out.println(classInfo);
+}
+*/
+
+//List<ClassInfo> classInfoList = ClassInfo.readClassInfoFromFile("lect.txt");
+
 public class ProjectDriver {
 
     public static void main(String[] args) {
-    	List<ClassInfo> classInfoList = ClassInfo.readClassInfoFromFile("lect.txt");
     	
     	
-    	/*
-    	// Assuming you have parsed the class information from the file and stored it in a List<ClassInfo> variable named classInfoList
-
-    	// Iterate through each ClassInfo object in the list
-    	for (ClassInfo classInfo : classInfoList) {
-    	    // Access and print class information using getters
-    	    System.out.println("Class Number: " + classInfo.getClassNumber());
-    	    System.out.println("Prefix: " + classInfo.getPrefix());
-    	    System.out.println("Title: " + classInfo.getTitle());
-    	    System.out.println("Level: " + classInfo.getLevel());
-    	    System.out.println("Modality: " + classInfo.getModality());
-    	    if (!classInfo.getModality().equalsIgnoreCase("Online")) {
-    	        System.out.println("Location: " + classInfo.getLocation());
-    	        System.out.println("Has Lab: " + (classInfo.isHasLab() ? "Yes" : "No"));
-    	    }
-    	    System.out.println("Credit Hours: " + classInfo.getCreditHours());
-    	    if (classInfo.isHasLab()) {
-    	        System.out.println("Lab Locations:");
-    	        for (String labLocation : classInfo.getLabLocations()) {
-    	            System.out.println("\t" + labLocation);
-    	        }
-    	    }
-    	    System.out.println(); // Add a newline for better readability between classes
-    	}
-    	*/
-
-    	/*
-    	//Test parsing of lect.txt
-        for (ClassInfo classInfo : classInfoList) {
-            System.out.println(classInfo);
+    	MainMenu mainMenu = new MainMenu();
+        while (true) {
+            mainMenu.displayMainMenu();
         }
-        */
+    	
+
+    	
     }
 
 
 }
+//---------------------------
+class MainMenu {
+    private Scanner scanner;
+    private Map<String, Student> studentsMap; // Map to store students by ID
+
+    public MainMenu() {
+        scanner = new Scanner(System.in);
+        studentsMap = new HashMap<>();
+    }
+
+    public void displayMainMenu() {
+        System.out.println("Main Menu:");
+        System.out.println("1. Student Management");
+        System.out.println("2. Class Management");
+        System.out.println("3. Exit");
+        System.out.print("Choose an option: ");
+        int choice = scanner.nextInt();
+        scanner.nextLine(); // Consume newline
+
+        switch (choice) {
+            case 1:
+                studentManagement();
+                break;
+            case 2:
+                classManagement();
+                break;
+            case 3:
+                System.out.println("Exiting program...");
+                System.exit(0);
+                break;
+            default:
+                System.out.println("Invalid choice. Please try again.");
+                displayMainMenu();
+        }
+    }
+
+    private void studentManagement() {
+        System.out.println("\nStudent Management:");
+        System.out.println("a. Add a student");
+        System.out.println("b. Search for a student by ID");
+        System.out.println("c. Delete a student");
+        System.out.println("d. Print the fee invoice of a student by ID");
+        System.out.println("e. Print all students grouped by type");
+        System.out.print("Choose an option: ");
+        char choice = scanner.nextLine().charAt(0);
+
+        switch (choice) {
+            case 'a':
+            	addStudent();
+                break;
+            case 'b':
+            	searchStudentById();
+                break;
+            case 'c':
+                // Implement deleteStudent() method
+                break;
+            case 'd':
+                // Implement printFeeInvoice() method
+                break;
+            case 'e':
+                // Implement printAllStudentsGroupedByType() method
+                break;
+            default:
+                System.out.println("Invalid choice. Please try again.");
+                studentManagement();
+        }
+    }
+    
+    private void addStudent() {
+        try {
+            // Input student details
+            System.out.print("Enter Student’s ID: ");
+            String id = scanner.nextLine();
+            System.out.print("Student Type (PhD, MS, or Undergrad): ");
+            String studentType = scanner.nextLine().toUpperCase();
+
+            // Input remaining information based on student type
+            String[] studentInfo;
+            if (studentType.equals("PHD")) {
+                System.out.print("Enter Name, Advisor, Research Subject, and CRN: ");
+            } else if (studentType.equals("MS")) {
+                System.out.print("Enter Name, Grad CRNs Taken, and CRN: ");
+            } else if (studentType.equals("UNDERGRAD")) {
+                System.out.print("Enter Name, Undergrad CRNs Taken, GPA, and Resident (true/false): ");
+            }
+
+            studentInfo = scanner.nextLine().split("\\|");
+
+            // Create student object based on type and add to map
+            Student newStudent = null;
+            switch (studentType) {
+                case "PHD":
+                    newStudent = new PhdStudent(studentInfo[0], id, studentInfo[1], studentInfo[2], Integer.parseInt(studentInfo[3]));
+                    break;
+                case "MS":
+                    String[] crnsTaken = studentInfo[1].split(",");
+                    int[] crnArray = new int[crnsTaken.length];
+                    for (int i = 0; i < crnsTaken.length; i++) {
+                        crnArray[i] = Integer.parseInt(crnsTaken[i].trim());
+                    }
+                    newStudent = new MsStudent(studentInfo[0], id, crnArray, Integer.parseInt(studentInfo[2]));
+                    break;
+                case "UNDERGRAD":
+                    String[] undergradCrns = studentInfo[1].split(",");
+                    int[] undergradCrnArray = new int[undergradCrns.length];
+                    for (int i = 0; i < undergradCrns.length; i++) {
+                        undergradCrnArray[i] = Integer.parseInt(undergradCrns[i].trim());
+                    }
+                    newStudent = new UndergraduateStudent(studentInfo[0], id, undergradCrnArray, Double.parseDouble(studentInfo[2]), Boolean.parseBoolean(studentInfo[3]));
+                    break;
+                default:
+                    System.out.println("Invalid student type.");
+                    return;
+            }
+
+            studentsMap.put(id, newStudent); // Add student to map
+            System.out.println("[" + newStudent.getName() + "] added!");
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+    
+    private void searchStudentById() {
+        System.out.print("Enter Student’s ID: ");
+        String id = scanner.nextLine();
+        Student student = studentsMap.get(id); // Get student from map
+        if (student != null) {
+            System.out.println("Student Found:");
+            System.out.println("Name: " + student.getName());
+            System.out.println("ID: " + student.getId());
+            // Print additional details based on student type
+            if (student instanceof PhdStudent) {
+                PhdStudent phdStudent = (PhdStudent) student;
+                System.out.println("Research Subject: " + phdStudent.getResearchSubject());
+            } else if (student instanceof MsStudent) {
+                MsStudent msStudent = (MsStudent) student;
+                System.out.println("Grad CRNs Taken: " + Arrays.toString(msStudent.getGradCrnsTaken()));
+            } else if (student instanceof UndergraduateStudent) {
+                UndergraduateStudent undergradStudent = (UndergraduateStudent) student;
+                System.out.println("Undergrad CRNs Taken: " + Arrays.toString(undergradStudent.getUndergradCrnsTaken()));
+                System.out.println("GPA: " + undergradStudent.getGpa());
+                System.out.println("Resident: " + undergradStudent.isResident());
+            }
+        } else {
+            System.out.println("Student with ID " + id + " not found.");
+        }
+    }
+
+    private void classManagement() {
+        System.out.println("\nClass Management:");
+        System.out.println("a. Search for a class or lab using the class/lab number");
+        System.out.println("b. Delete a class (and associated labs)");
+        System.out.println("c. Add a lab to a class (when applicable)");
+        System.out.println("d. Display the list of classes and labs");
+        System.out.print("Choose an option: ");
+        char choice = scanner.nextLine().charAt(0);
+
+        switch (choice) {
+            case 'a':
+                // Implement searchClassOrLab() method
+                break;
+            case 'b':
+                // Implement deleteClass() method
+                break;
+            case 'c':
+                // Implement addLabToClass() method
+                break;
+            case 'd':
+                // Implement displayClassesAndLabs() method
+                break;
+            default:
+                System.out.println("Invalid choice. Please try again.");
+                classManagement();
+        }
+    }
+}
+
 
 //---------------------------
 //Abstract class Student to be used as a base class for UndergraduateStudent, GraduateStudent, PhdStudent, and MsStudent
@@ -161,10 +351,24 @@ class UndergraduateStudent extends Student {
     // Constructor
     public UndergraduateStudent(String name, String id, int[] undergradCrnsTaken, double gpa, boolean resident) throws IdException {
         super(name, id);
-        validateId(id); // Validate ID format
         this.undergradCrnsTaken = undergradCrnsTaken;
         this.gpa = gpa;
         this.resident = resident;
+    }
+
+    // Getter method for gpa
+    public double getGpa() {
+        return gpa;
+    }
+
+    // Getter method for undergradCrnsTaken
+    public int[] getUndergradCrnsTaken() {
+        return undergradCrnsTaken;
+    }
+    
+    // Getter method for resident status
+    public boolean isResident() {
+        return resident;
     }
 
     @Override // Override the abstract method in the base class
@@ -261,6 +465,11 @@ class PhdStudent extends GraduateStudent {
       super(name, id, crn);
       this.researchSubject = researchSubject;
   }
+  
+  // Define the getResearchSubject method
+  public String getResearchSubject() {
+      return researchSubject;
+  }
 
   @Override // Override the abstract method in the base class
   // Method to print the invoice for a Phd student
@@ -296,59 +505,65 @@ class PhdStudent extends GraduateStudent {
 //---------------------------
 //MsStudent class that extends GraduateStudent
 class MsStudent extends GraduateStudent {
-  // Instance variable
-  private int[] gradCrnsTaken;
+    // Instance variable
+    private int[] gradCrnsTaken;
 
-  // Constructor
-  public MsStudent(String name, String id, int[] gradCrnsTaken, int crn) throws IdException {
-      super(name, id, crn);
-      this.gradCrnsTaken = gradCrnsTaken;
-  }
+    // Constructor
+    public MsStudent(String name, String id, int[] gradCrnsTaken, int crn) throws IdException {
+        super(name, id, crn);
+        this.gradCrnsTaken = gradCrnsTaken;
+    }
 
-  @Override // Override the abstract method in the base class
-  // Method to print the invoice for a Ms student
-  public void printInvoice() {
-      try {
-          // Constants for legibility and ease of use:
-          final double HEALTH_AND_ID_FEES = 35;
-          final double TUITION = 300; //cost per credit hour
+    // Getter method for gradCrnsTaken
+    public int[] getGradCrnsTaken() {
+        return gradCrnsTaken;
+    }
 
-          System.out.println("\tVALENCE COLLEGE");
-          System.out.println("\tORLANDO FL 10101");
-          System.out.println("\t---------------------\n");
-          System.out.println("\tFee Invoice Prepared for Student:");
-          System.out.println("\t" + getId() + "-" + getName() + "\n"); // Print student name and id
+    @Override
+    // Method to print the invoice for a Ms student
+    public void printInvoice() {
+        try {
+            // Constants for legibility and ease of use:
+            final double HEALTH_AND_ID_FEES = 35;
+            final double TUITION = 300; //cost per credit hour
 
-          double totalCost = 0; // Initialize total cost
+            System.out.println("\tVALENCE COLLEGE");
+            System.out.println("\tORLANDO FL 10101");
+            System.out.println("\t---------------------\n");
+            System.out.println("\tFee Invoice Prepared for Student:");
+            System.out.println("\t" + getId() + "-" + getName() + "\n"); // Print student name and id
 
-          System.out.println("\t1 Credit Hour = $" + String.format("%.2f", TUITION) + "\n");  // Print the cost per credit hour
-          System.out.println("\tCRN\tCR_PREFIX\tCR_HOURS");
+            double totalCost = 0; // Initialize total cost
 
-          // Loop through each course taken and print the course information and cost
-          for (int crn : gradCrnsTaken) {
-              double cost = TUITION * creditHours[crn];
-              totalCost += cost;
-              System.out.println("\t" + crn + "\t" + coursePrefix[crn] + "\t\t" + creditHours[crn] + "\t$" + String.format("%.2f", cost));
-          }
+            System.out.println("\t1 Credit Hour = $" + String.format("%.2f", TUITION) + "\n");  // Print the cost per credit hour
+            System.out.println("\tCRN\tCR_PREFIX\tCR_HOURS");
 
-          System.out.println("\n\t\tHealth & id fees\t$ " + String.format("%.2f", HEALTH_AND_ID_FEES) + "\n\n\t----------------------------------------"); // Print health and id fees
+            // Loop through each course taken and print the course information and cost
+            for (int crn : gradCrnsTaken) {
+                double cost = TUITION * creditHours[crn];
+                totalCost += cost;
+                System.out.println("\t" + crn + "\t" + coursePrefix[crn] + "\t\t" + creditHours[crn] + "\t$" + String.format("%.2f", cost));
+            }
 
-          totalCost += HEALTH_AND_ID_FEES; //Add health and id fees to total cost
+            System.out.println("\n\t\tHealth & id fees\t$ " + String.format("%.2f", HEALTH_AND_ID_FEES) + "\n\n\t----------------------------------------"); // Print health and id fees
 
-          System.out.println("\t\t\tTOTAL PAYMENTS\t$ " + String.format("%.2f", totalCost)); // Print the total cost
-          System.out.println("\n\n"); // Print new lines for legibility
-      } catch (Exception e) {
-          System.out.println("Error: " + e.getMessage());
-      }
-  }
+            totalCost += HEALTH_AND_ID_FEES; //Add health and id fees to total cost
 
-  @Override
-  // Method to get the TA for MsStudent
-  protected int getTAFor() {
-      // Implement method to return the TA CRN for MsStudent
-      return 0; // Replace 0 with actual implementation
-  }
+            System.out.println("\t\t\tTOTAL PAYMENTS\t$ " + String.format("%.2f", totalCost)); // Print the total cost
+            System.out.println("\n\n"); // Print new lines for legibility
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    @Override
+    // Method to get the TA for MsStudent
+    protected int getTAFor() {
+        // Implement method to return the TA CRN for MsStudent
+        return 0; // Replace 0 with actual implementation
+    }
 }
+
 
 //---------------------------
 class ClassInfo {
