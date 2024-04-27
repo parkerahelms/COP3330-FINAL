@@ -6,6 +6,11 @@
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 // Custom exception class for handling ID related exceptions
 class IdException extends Exception implements Serializable {
@@ -16,82 +21,16 @@ class IdException extends Exception implements Serializable {
     }
 }
 
-
+//---------------------------
 public class ProjectDriver {
 
     public static void main(String[] args) {
-        // Test your implementation here
-    	
-    	// Proof that IdException works:
-    	/*
-    	try {
-            // Create an undergraduate student with a valid and unique ID
-            Student undergrad1 = new UndergraduateStudent("John Doe", "jd1234", new int[]{1234, 5678}, 3.5, true);
-            System.out.println("Undergraduate student created successfully.");
-        } catch (IdException e) {
-            System.out.println("Error creating undergraduate student: " + e.getMessage());
+    	List<ClassInfo> classInfoList = ClassInfo.readClassInfoFromFile("lect.txt");
+        for (ClassInfo classInfo : classInfoList) {
+            System.out.println(classInfo);
         }
-
-        try {
-            // Attempt to create another undergraduate student with the same ID (should throw an exception)
-            Student undergrad2 = new UndergraduateStudent("Jane Smith", "jd1234", new int[]{9876, 5432}, 3.2, false);
-            System.out.println("Undergraduate student created successfully.");
-        } catch (IdException e) {
-            System.out.println("Error creating undergraduate student: " + e.getMessage());
-        }
-
-        try {
-            // Attempt to create a graduate student with an invalid ID format (should throw an exception)
-            Student grad1 = new PhdStudent("Alice Brown", "ab12", "Dr. Smith", "Quantum Physics", 4567);
-            System.out.println("Graduate student created successfully.");
-        } catch (IdException e) {
-            System.out.println("Error creating graduate student: " + e.getMessage());
-        }
-        /*
-    	
-    	//HW 5 code to test:
-    	/*
-    	Student s = null;
-		
-		try {
-			s = new PhdStudent ("Zaydoun BenSellam",
-					     "zb5954" , 
-					     "Gary Richarson",  
-					     "Fuzzy Topology" , 
-					      2599 );
-		} catch (IdException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		s.printInvoice();
-		
-		int [] gradCrnsTaken = {7587,8997} ;
-		try {
-			s = new MsStudent ( "Emily Jones",
-					     "em1254",
-					     gradCrnsTaken,
-					     1997);
-		} catch (IdException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		s.printInvoice();
-		
-		int [] undergradCrnsTaken = {4587,2599};
-		try {
-			s = new UndergraduateStudent ("Jamila Jones" , 
-							"ja5225" , 
-							undergradCrnsTaken , 
-							3.0,
-							false );
-		} catch (IdException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		s.printInvoice();
-		
-		*/
     }
+
 
 }
 
@@ -378,4 +317,199 @@ class MsStudent extends GraduateStudent {
       // Implement method to return the TA CRN for MsStudent
       return 0; // Replace 0 with actual implementation
   }
+}
+
+//---------------------------
+class ClassInfo {
+    private String cn;
+    private String prefix;
+    private String title;
+    private String graduateOrUndergraduate;
+    private String modality;
+    private String location;
+    private boolean hasLab;
+    private String creditHours;
+    private List<String> labs; // List to store associated labs
+
+    // Constructors, getters, and setters...
+
+    public ClassInfo(String cn, String prefix, String title, String graduateOrUndergraduate, String modality,
+                     String location, boolean hasLab, String creditHours) {
+        this.cn = cn;
+        this.prefix = prefix;
+        this.title = title;
+        this.graduateOrUndergraduate = graduateOrUndergraduate;
+        this.modality = modality;
+        this.location = location;
+        this.hasLab = hasLab;
+        this.creditHours = creditHours;
+        this.labs = new ArrayList<>(); // Initialize the labs list
+    }
+
+    public ClassInfo(String cn, String location) {
+        this.cn = cn;
+        this.location = location;
+        // Set other fields to default values or leave them null/empty
+        this.prefix = "";
+        this.title = "";
+        this.graduateOrUndergraduate = "";
+        this.modality = "";
+        this.hasLab = false;
+        this.creditHours = "";
+        this.labs = new ArrayList<>();
+    }
+
+    // Method to add a lab associated with this class
+    public void addLab(String labLocation) {
+        labs.add(labLocation);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("ClassInfo{\n");
+        sb.append("\tcn='").append(cn).append("',\n");
+        sb.append("\tprefix='").append(prefix).append("',\n");
+        sb.append("\ttitle='").append(title).append("',\n");
+        sb.append("\tgraduateOrUndergraduate='").append(graduateOrUndergraduate).append("',\n");
+        sb.append("\tmodality='").append(modality).append("',\n");
+        sb.append("\tlocation='").append(location).append("',\n");
+        sb.append("\thasLab=").append(hasLab).append(",\n");
+        sb.append("\tcreditHours='").append(creditHours).append("',\n");
+        sb.append("\tlabs=").append(labs).append("\n"); // Append labs information
+        sb.append("}");
+        return sb.toString();
+    }
+
+    public static List<ClassInfo> readClassInfoFromFile(String filename) {
+        List<ClassInfo> classInfoList = new ArrayList<>();
+        List<ClassInfo> classLabs = new ArrayList<>();
+
+        try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length < 2) { // Invalid line
+                    System.out.println("Invalid input line: " + line);
+                    continue;
+                }
+
+                String cn = parts[0];
+                String locationOrGraduate = parts[1];
+
+                // Check if it's a lab
+                if (locationOrGraduate.matches("[A-Z]{3}-\\d{3}")) {
+                    classLabs.add(new ClassInfo(cn, locationOrGraduate));
+                } else {
+                    // It's a class
+                    if (parts.length < 5) {
+                        System.out.println("Invalid class input line: " + line);
+                        continue;
+                    }
+                    String prefix = parts[1];
+                    String title = parts[2];
+                    String graduateOrUndergraduate = parts[3];
+                    String modality = parts[4];
+
+                    if (modality.equalsIgnoreCase("Online")) {
+                        if (parts.length < 6) {
+                            System.out.println("Invalid online class input line: " + line);
+                            continue;
+                        }
+                        String creditHours = parts[5];
+                        classInfoList.add(new ClassInfo(cn, prefix, title, graduateOrUndergraduate, modality, "", false, creditHours));
+                    } else { // F2F or Mixed
+                        if (parts.length < 8) {
+                            System.out.println("Invalid F2F/Mixed class input line: " + line);
+                            continue;
+                        }
+                        String location = parts[5];
+                        boolean hasLab = parts[6].equalsIgnoreCase("Yes");
+                        String creditHours = parts[7];
+                        ClassInfo classInfo = new ClassInfo(cn, prefix, title, graduateOrUndergraduate, modality, location, hasLab, creditHours);
+                        classInfoList.add(classInfo);
+
+                        // If class has a lab, read lab info
+                        if (hasLab) {
+                            for (ClassInfo lab : classLabs) {
+                                if (lab.getCn().equals(cn)) {
+                                    classInfo.addLab(lab.getLocation());
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Error reading file: " + e.getMessage());
+        }
+
+        return classInfoList;
+    }
+
+	public String getCn() {
+		return cn;
+	}
+
+	public void setCn(String cn) {
+		this.cn = cn;
+	}
+
+	public String getPrefix() {
+		return prefix;
+	}
+
+	public void setPrefix(String prefix) {
+		this.prefix = prefix;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public String getGraduateOrUndergraduate() {
+		return graduateOrUndergraduate;
+	}
+
+	public void setGraduateOrUndergraduate(String graduateOrUndergraduate) {
+		this.graduateOrUndergraduate = graduateOrUndergraduate;
+	}
+
+	public String getModality() {
+		return modality;
+	}
+
+	public void setModality(String modality) {
+		this.modality = modality;
+	}
+
+	public String getLocation() {
+		return location;
+	}
+
+	public void setLocation(String location) {
+		this.location = location;
+	}
+
+	public boolean isHasLab() {
+		return hasLab;
+	}
+
+	public void setHasLab(boolean hasLab) {
+		this.hasLab = hasLab;
+	}
+
+	public String getCreditHours() {
+		return creditHours;
+	}
+
+	public void setCreditHours(String creditHours) {
+		this.creditHours = creditHours;
+	}
+	
+	
 }
