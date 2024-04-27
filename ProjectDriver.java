@@ -380,16 +380,16 @@ class ClassInfo {
                 if (hasLab) {
                     currentClass = new ClassInfo(classNumber, prefix, title, level, modality, location, hasLab, creditHours);
                     classInfoList.add(currentClass);
+                    // Read lab locations
+                    while ((line = br.readLine()) != null) {
+                        if (line.split(",\\s*").length > 2) {
+                            break; // Break if line contains class information
+                        }
+                        currentClass.addLabLocation(line.trim());
+                    }
                 } else {
                     ClassInfo classInfo = new ClassInfo(classNumber, prefix, title, level, modality, location, hasLab, creditHours);
                     classInfoList.add(classInfo);
-                }
-
-                if (hasLab) {
-                    // Read lab locations
-                    while ((line = br.readLine()) != null && !line.contains(",")) {
-                        currentClass.addLabLocation(line);
-                    }
                 }
             }
         } catch (IOException e) {
