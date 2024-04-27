@@ -26,9 +26,40 @@ public class ProjectDriver {
 
     public static void main(String[] args) {
     	List<ClassInfo> classInfoList = ClassInfo.readClassInfoFromFile("lect.txt");
+    	
+    	
+    	/*
+    	// Assuming you have parsed the class information from the file and stored it in a List<ClassInfo> variable named classInfoList
+
+    	// Iterate through each ClassInfo object in the list
+    	for (ClassInfo classInfo : classInfoList) {
+    	    // Access and print class information using getters
+    	    System.out.println("Class Number: " + classInfo.getClassNumber());
+    	    System.out.println("Prefix: " + classInfo.getPrefix());
+    	    System.out.println("Title: " + classInfo.getTitle());
+    	    System.out.println("Level: " + classInfo.getLevel());
+    	    System.out.println("Modality: " + classInfo.getModality());
+    	    if (!classInfo.getModality().equalsIgnoreCase("Online")) {
+    	        System.out.println("Location: " + classInfo.getLocation());
+    	        System.out.println("Has Lab: " + (classInfo.isHasLab() ? "Yes" : "No"));
+    	    }
+    	    System.out.println("Credit Hours: " + classInfo.getCreditHours());
+    	    if (classInfo.isHasLab()) {
+    	        System.out.println("Lab Locations:");
+    	        for (String labLocation : classInfo.getLabLocations()) {
+    	            System.out.println("\t" + labLocation);
+    	        }
+    	    }
+    	    System.out.println(); // Add a newline for better readability between classes
+    	}
+    	*/
+
+    	/*
+    	//Test parsing of lect.txt
         for (ClassInfo classInfo : classInfoList) {
             System.out.println(classInfo);
         }
+        */
     }
 
 
