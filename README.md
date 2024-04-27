@@ -8,4 +8,3 @@ To-Do:
 
 Working on:
 Logan -> Main Menu
-Parker -> 
