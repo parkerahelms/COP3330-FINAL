@@ -4,6 +4,8 @@
 
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 // Custom exception class for handling ID related exceptions
 class IdException extends Exception implements Serializable {
@@ -20,8 +22,36 @@ public class ProjectDriver {
     public static void main(String[] args) {
         // Test your implementation here
     	
+    	// Proof that IdException works:
+    	/*
+    	try {
+            // Create an undergraduate student with a valid and unique ID
+            Student undergrad1 = new UndergraduateStudent("John Doe", "jd1234", new int[]{1234, 5678}, 3.5, true);
+            System.out.println("Undergraduate student created successfully.");
+        } catch (IdException e) {
+            System.out.println("Error creating undergraduate student: " + e.getMessage());
+        }
+
+        try {
+            // Attempt to create another undergraduate student with the same ID (should throw an exception)
+            Student undergrad2 = new UndergraduateStudent("Jane Smith", "jd1234", new int[]{9876, 5432}, 3.2, false);
+            System.out.println("Undergraduate student created successfully.");
+        } catch (IdException e) {
+            System.out.println("Error creating undergraduate student: " + e.getMessage());
+        }
+
+        try {
+            // Attempt to create a graduate student with an invalid ID format (should throw an exception)
+            Student grad1 = new PhdStudent("Alice Brown", "ab12", "Dr. Smith", "Quantum Physics", 4567);
+            System.out.println("Graduate student created successfully.");
+        } catch (IdException e) {
+            System.out.println("Error creating graduate student: " + e.getMessage());
+        }
+        /*
     	
-Student s = null;
+    	//HW 5 code to test:
+    	/*
+    	Student s = null;
 		
 		try {
 			s = new PhdStudent ("Zaydoun BenSellam",
@@ -59,6 +89,8 @@ Student s = null;
 			e.printStackTrace();
 		}
 		s.printInvoice();
+		
+		*/
     }
 
 }
@@ -69,11 +101,29 @@ abstract class Student {
     // Instance variables
     private String name;
     private String id;
-
+    
+ // Static set to store used IDs
+    private static Set<String> usedIds = new HashSet<>();
+    
     // Constructor
-    public Student(String name, String id) {
+    public Student(String name, String id) throws IdException {
         this.name = name;
+        validateId(id); // Validate ID format
         this.id = id;
+    }
+    
+
+ // Validate ID format and uniqueness
+    private void validateId(String id) throws IdException {
+        // Validate ID format
+        if (!id.matches("[a-zA-Z]{2}\\d{4}")) {
+            throw new IdException("Invalid ID format. ID must be of the form LetterLetterDigitDigitDigitDigit (e.g., er7894).");
+        }
+        
+        // Validate ID uniqueness
+        if (usedIds.contains(id)) {
+            throw new IdException("ID " + id + " is already in use.");
+        }
     }
 
     // Abstract method to be implemented in subclasses
