@@ -341,6 +341,7 @@ class MainMenu {
                     System.out.println("Class: " + classInfo.getClassNumber());
                     System.out.println("Lab Number: " + classInfo.getLabNumbers().get(i));
                     System.out.println("Lab Location: " + classInfo.getLabLocations().get(i));
+                    System.out.println("Lab for: " + classInfo.getTitle()); // Print class title
                     found = true;
                 }
             }
