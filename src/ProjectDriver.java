@@ -828,9 +828,11 @@ class ClassInfo {
                     // Read lab locations
                     while ((line = br.readLine()) != null) {
                         if (line.split(",\\s*").length > 2) {
+                            br.reset(); //return to last marked position to allow the current line, which is a class and NOT a lab, to be read as a class next loop itteration
                             break; // Break if line contains class information
                         }
                         currentClass.addLabLocation(line.trim());
+                        br.mark(1000); //mark location to return to if next line does NOT have lab data
                     }
                 } else {
                     ClassInfo classInfo = new ClassInfo(classNumber, prefix, title, level, modality, location, hasLab, creditHours);
