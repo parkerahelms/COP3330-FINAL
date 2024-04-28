@@ -305,7 +305,7 @@ class MainMenu {
 
         switch (choice) {
             case 'a':
-            	searchClassOrLab();
+            	searchClassOrLab(classInfoList, scanner);
                 break;
             case 'b':
                 // Implement deleteClass() method
@@ -322,24 +322,34 @@ class MainMenu {
         }
     }
     
-    private void searchClassOrLab() {
+    public static void searchClassOrLab(List<ClassInfo> classInfoList, Scanner scanner) {
         System.out.print("Enter the Class/Lab Number: ");
-        String classLabNumber = scanner.nextLine();
+        String searchQuery = scanner.nextLine();
 
-        // Search for the class/lab in the list of class information
+        boolean found = false;
         for (ClassInfo classInfo : classInfoList) {
-            if (classInfo.getClassNumber().equals(classLabNumber)) {
-                // Print details of the class/lab if found
-                System.out.println("Lab for [" + classInfo.getClassNumber() + ", " + classInfo.getPrefix() + ", " + classInfo.getTitle() + "]");
-                if (!classInfo.getModality().equalsIgnoreCase("Online")) {
-                    System.out.println("Lab Room " + classInfo.getLocation());
+            // Check if the search query matches the class number
+            if (classInfo.getClassNumber().equalsIgnoreCase(searchQuery)) {
+                System.out.println("Class found:");
+                System.out.println(classInfo);
+                found = true;
+            }
+            // Check if the search query matches any lab number for this class
+            for (int i = 0; i < classInfo.getLabNumbers().size(); i++) {
+                if (classInfo.getLabNumbers().get(i).equalsIgnoreCase(searchQuery)) {
+                    System.out.println("Lab found:");
+                    System.out.println("Class: " + classInfo.getClassNumber());
+                    System.out.println("Lab Number: " + classInfo.getLabNumbers().get(i));
+                    System.out.println("Lab Location: " + classInfo.getLabLocations().get(i));
+                    found = true;
                 }
-                return; // Exit the loop after finding the class/lab
             }
         }
-        // If the class/lab is not found
-        System.out.println("Class/Lab with number " + classLabNumber + " not found.");
+        if (!found) {
+            System.out.println("No matching class or lab found.");
+        }
     }
+
 }
 
 
@@ -631,6 +641,7 @@ class ClassInfo {
     private boolean hasLab;
     private int creditHours;
     private List<String> labLocations;
+    private List<String> labNumbers;
 
     public ClassInfo(String classNumber, String prefix, String title, String level, String modality, String location, boolean hasLab, int creditHours) {
         this.classNumber = classNumber;
@@ -642,6 +653,7 @@ class ClassInfo {
         this.hasLab = hasLab;
         this.creditHours = creditHours;
         this.labLocations = new ArrayList<>();
+        this.labNumbers = new ArrayList<>();
     }
 
     public static List<ClassInfo> readClassInfoFromFile(String fileName) {
@@ -681,12 +693,17 @@ class ClassInfo {
                 if (hasLab) {
                     currentClass = new ClassInfo(classNumber, prefix, title, level, modality, location, hasLab, creditHours);
                     classInfoList.add(currentClass);
-                    // Read lab locations
+                    // Read lab numbers and locations
                     while ((line = br.readLine()) != null) {
-                        if (line.split(",\\s*").length > 2) {
-                            break; // Break if line contains class information
+                        if (line.trim().isEmpty()) {
+                            break; // Break if empty line encountered
                         }
-                        currentClass.addLabLocation(line.trim());
+                        String[] labParts = line.split(",\\s*"); // Split lab line
+                        if (labParts.length != 2) {
+                            continue; // Skip invalid lab lines
+                        }
+                        currentClass.addLabNumber(labParts[0].trim());
+                        currentClass.addLabLocation(labParts[1].trim());
                     }
                 } else {
                     ClassInfo classInfo = new ClassInfo(classNumber, prefix, title, level, modality, location, hasLab, creditHours);
@@ -725,6 +742,15 @@ class ClassInfo {
             }
         }
         return sb.toString();
+    }
+
+    
+    public List<String> getLabNumbers() {
+        return labNumbers;
+    }
+
+    public void addLabNumber(String labNumber) {
+        this.labNumbers.add(labNumber);
     }
 
 	public String getClassNumber() {
