@@ -793,7 +793,6 @@ class ClassInfo {
         try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
             String line;
             ClassInfo currentClass = null;
-            boolean isLabSection = false; // Flag to indicate if currently parsing lab section
             while ((line = br.readLine()) != null) {
                 String[] parts = line.split(",\\s*"); // Split with comma followed by optional whitespace
                 if (parts.length < 6) {
@@ -823,22 +822,19 @@ class ClassInfo {
                     creditHours = Integer.parseInt(parts[7]);
                 }
 
-                if (!isLabSection) {
-                    if (hasLab) {
-                        currentClass = new ClassInfo(classNumber, prefix, title, level, modality, location, hasLab, creditHours);
-                        classInfoList.add(currentClass);
-                        isLabSection = true; // Start parsing lab section
-                    } else {
-                        ClassInfo classInfo = new ClassInfo(classNumber, prefix, title, level, modality, location, hasLab, creditHours);
-                        classInfoList.add(classInfo);
+                if (hasLab) {
+                    currentClass = new ClassInfo(classNumber, prefix, title, level, modality, location, hasLab, creditHours);
+                    classInfoList.add(currentClass);
+                    // Read lab locations
+                    while ((line = br.readLine()) != null) {
+                        if (line.split(",\\s*").length > 2) {
+                            break; // Break if line contains class information
+                        }
+                        currentClass.addLabLocation(line.trim());
                     }
                 } else {
-                    // Check if it's a new class
-                    if (parts.length >= 6) {
-                        isLabSection = false; // End of lab section
-                    } else {
-                        currentClass.addLab(parts[0].trim(), parts[1].trim());
-                    }
+                    ClassInfo classInfo = new ClassInfo(classNumber, prefix, title, level, modality, location, hasLab, creditHours);
+                    classInfoList.add(classInfo);
                 }
             }
         } catch (IOException e) {
