@@ -134,7 +134,7 @@ class MainMenu {
             	deleteStudent();
                 break;
             case 'd':
-                // Implement printFeeInvoice() method
+            	printFeeInvoiceById();
                 break;
             case 'e':
                 // Implement printAllStudentsGroupedByType() method
@@ -237,6 +237,17 @@ class MainMenu {
         if (student != null) {
             studentsMap.remove(id); // Remove student from map
             System.out.println("Student with ID " + id + " deleted successfully.");
+        } else {
+            System.out.println("Student with ID " + id + " not found.");
+        }
+    }
+    
+    private void printFeeInvoiceById() {
+        System.out.print("Enter Student’s ID: ");
+        String id = scanner.nextLine();
+        Student student = studentsMap.get(id); // Get student from map
+        if (student != null) {
+            student.printInvoice(); // Call the printInvoice method of the student
         } else {
             System.out.println("Student with ID " + id + " not found.");
         }
