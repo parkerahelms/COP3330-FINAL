@@ -3,12 +3,9 @@
 
 
 
-import java.io.Serializable;
+import java.io.*;
 import java.util.HashSet;
 import java.util.Set;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -308,7 +305,7 @@ class MainMenu {
             	searchClassOrLab(classInfoList, scanner);
                 break;
             case 'b':
-                // Implement deleteClass() method
+                deleteClass(classInfoList, scanner);
                 break;
             case 'c':
                 // Implement addLabToClass() method
@@ -322,10 +319,41 @@ class MainMenu {
         }
     }
     
-    public static void searchClassOrLab(List<ClassInfo> classInfoList, Scanner scanner) {
+    public static void deleteClass(List<ClassInfo> classInfoList, Scanner scanner) {
         System.out.print("Enter the Class/Lab Number: ");
         String searchQuery = scanner.nextLine();
 
+        boolean found = false;
+        for (int i = 0;i < classInfoList.size();i++) {
+            // Check if the search query matches the class number
+            if (classInfoList.get(i).getClassNumber().equalsIgnoreCase(searchQuery)) {
+                System.out.println("Class DELETED:");
+                System.out.println(classInfoList.get(i).getClassNumber());
+                classInfoList.remove(i);
+                found = true;
+            }
+            // Check if the search query matches any lab number for this class
+            for (int j = 0; j < classInfoList.get(i).getLabNumbers().size(); j++) {
+                if (classInfoList.get(i).getLabNumbers().get(j).equalsIgnoreCase(searchQuery)) {
+                    System.out.println("Lab DELETED:");
+                    System.out.println("Class: " + classInfoList.get(i).getClassNumber());
+                    System.out.println("Lab Number: " + classInfoList.get(i).getLabNumbers().get(j));
+                    classInfoList.get(i).getLabNumbers().remove(j);
+                    classInfoList.get(i).getLabLocations().remove(j);
+                    found = true;
+                }
+            }
+        }
+        if (!found) {
+            System.out.println("No matching class or lab to delete found.");
+        } else
+            ClassInfo.writeClassInfoToFile("lect.txt",classInfoList);
+
+    }
+
+    public static void searchClassOrLab(List<ClassInfo> classInfoList, Scanner scanner) {
+        System.out.print("Enter the Class/Lab Number to DELETE: ");
+        String searchQuery = scanner.nextLine();
         boolean found = false;
         for (ClassInfo classInfo : classInfoList) {
             // Check if the search query matches the class number
@@ -346,11 +374,15 @@ class MainMenu {
             }
         }
         if (!found) {
-            System.out.println("No matching class or lab found.");
+            System.out.println("No matching class or lab found. Class was not deleted.");
+
         }
+
     }
 
 }
+
+
 
 
 //---------------------------
@@ -656,6 +688,46 @@ class ClassInfo {
         this.labNumbers = new ArrayList<>();
     }
 
+    public static void writeClassInfoToFile(String fileName,List<ClassInfo> classInfoList) {
+        //check for existing file, delete if nessisary
+        File f = new File(fileName);
+        FileWriter myWriter;
+
+        try {
+            if(f.exists() && !f.isDirectory()) {
+                f.delete();
+            }
+            f.createNewFile();
+            myWriter = new FileWriter(fileName);
+
+            for (ClassInfo classInfo : classInfoList) {
+                myWriter.write(
+                        classInfo.getClassNumber() + ","
+                                + classInfo.getPrefix() + ","
+                                + classInfo.getTitle() + ","
+                                + classInfo.getModality() + ","
+                                + classInfo.getLevel() + ","
+                                + classInfo.getLocation() + ","
+                                + classInfo.hasLab() + ","
+                                + classInfo.getCreditHours() + "\n"
+                );
+                if (classInfo.hasLab) {
+                    for (int i = 0;i < classInfo.getLabNumbers().size();i++) {
+                        myWriter.write(
+                                        classInfo.getLabNumbers().get(i) + ","
+                                        + classInfo.getLabLocations().get(i) + "\n"
+                        );
+                    }
+                }
+            }
+            myWriter.close();
+        } catch(Exception e) {
+            System.out.println("!An error occured while modifying the file!");
+        }
+
+
+    }
+
     public static List<ClassInfo> readClassInfoFromFile(String fileName) {
         List<ClassInfo> classInfoList = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
@@ -801,8 +873,12 @@ class ClassInfo {
 		this.location = location;
 	}
 
-	public boolean isHasLab() {
-		return hasLab;
+	public String hasLab() {
+		if (hasLab) {
+            return "YES";
+        }
+        else
+            return "NO";
 	}
 
 	public void setHasLab(boolean hasLab) {
