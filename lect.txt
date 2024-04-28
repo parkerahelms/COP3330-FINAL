@@ -3,7 +3,7 @@
 32658,COT6578,Advanced Computer theory,Graduate,Mixed,LPS-35,No,4
 69745,COP5698,Programming Languages,Graduate,F2F,CB2-122,YES,5
 19745,MSB-123
-36598,PSY-100 
+36598,PSY-100
 20315,HSA1-116
 56980,CDL2587,Introduction to Computers,Undergraduate,F2F,MSB-116,YES,4
 98123,RMA-008
@@ -16,7 +16,7 @@
 95310,RMA-028
 60045,COP5690,Programming Languages II,Graduate,F2F,CB2-120,YES,4
 19005,MSB-103
-30008,PSY-107 
+30008,PSY-107
 20300,HSA1-16
 51180,CDL2587,Introduction to Computers,Undergraduate,online,3
 36637,SOF2058,Introduction to Software,Undergraduate,Online,3
@@ -24,4 +24,4 @@
 98000,CMA-008
 94442,RMA-013
 56510,RMA-028
-69970,GOL1091, Introduction to AI, Graduate, Online,1 
+69970,GOL1091, Introduction to AI, Graduate, Online,1

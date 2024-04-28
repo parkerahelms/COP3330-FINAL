@@ -3,12 +3,9 @@
 
 
 
-import java.io.Serializable;
+import java.io.*;
 import java.util.HashSet;
 import java.util.Set;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -349,7 +346,9 @@ class MainMenu {
         }
         if (!found) {
             System.out.println("No matching class or lab to delete found.");
-        }
+        } else
+            ClassInfo.writeClassInfoToFile("lect.txt",classInfoList);
+
     }
 
     public static void searchClassOrLab(List<ClassInfo> classInfoList, Scanner scanner) {
@@ -689,6 +688,46 @@ class ClassInfo {
         this.labNumbers = new ArrayList<>();
     }
 
+    public static void writeClassInfoToFile(String fileName,List<ClassInfo> classInfoList) {
+        //check for existing file, delete if nessisary
+        File f = new File(fileName);
+        FileWriter myWriter;
+
+        try {
+            if(f.exists() && !f.isDirectory()) {
+                f.delete();
+            }
+            f.createNewFile();
+            myWriter = new FileWriter(fileName);
+
+            for (ClassInfo classInfo : classInfoList) {
+                myWriter.write(
+                        classInfo.getClassNumber() + ","
+                                + classInfo.getPrefix() + ","
+                                + classInfo.getTitle() + ","
+                                + classInfo.getModality() + ","
+                                + classInfo.getLevel() + ","
+                                + classInfo.getLocation() + ","
+                                + classInfo.hasLab() + ","
+                                + classInfo.getCreditHours() + "\n"
+                );
+                if (classInfo.hasLab) {
+                    for (int i = 0;i < classInfo.getLabNumbers().size();i++) {
+                        myWriter.write(
+                                        classInfo.getLabNumbers().get(i) + ","
+                                        + classInfo.getLabLocations().get(i) + "\n"
+                        );
+                    }
+                }
+            }
+            myWriter.close();
+        } catch(Exception e) {
+            System.out.println("!An error occured while modifying the file!");
+        }
+
+
+    }
+
     public static List<ClassInfo> readClassInfoFromFile(String fileName) {
         List<ClassInfo> classInfoList = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
@@ -834,8 +873,12 @@ class ClassInfo {
 		this.location = location;
 	}
 
-	public boolean isHasLab() {
-		return hasLab;
+	public String hasLab() {
+		if (hasLab) {
+            return "YES";
+        }
+        else
+            return "NO";
 	}
 
 	public void setHasLab(boolean hasLab) {
