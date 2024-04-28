@@ -131,7 +131,7 @@ class MainMenu {
             	searchStudentById();
                 break;
             case 'c':
-                // Implement deleteStudent() method
+            	deleteStudent();
                 break;
             case 'd':
                 // Implement printFeeInvoice() method
@@ -156,7 +156,7 @@ class MainMenu {
             // Input remaining information based on student type
             String[] studentInfo;
             if (studentType.equals("PHD")) {
-                System.out.print("Enter Name, Advisor | Research Subject | and CRN: ");
+                System.out.print("Enter Name, Advisor | Research Subject | and Lab CRNs (comma-separated): ");
             } else if (studentType.equals("MS")) {
                 System.out.print("Enter Name | Grad CRNs Taken | and CRN: ");
             } else if (studentType.equals("UNDERGRAD")) {
@@ -169,7 +169,12 @@ class MainMenu {
             Student newStudent = null;
             switch (studentType) {
                 case "PHD":
-                    newStudent = new PhdStudent(studentInfo[0], id, studentInfo[1], studentInfo[2], Integer.parseInt(studentInfo[3]), null);
+                    String[] labNumbers = studentInfo[2].split(",");
+                    int[] labNumberArray = new int[labNumbers.length];
+                    for (int i = 0; i < labNumbers.length; i++) {
+                        labNumberArray[i] = Integer.parseInt(labNumbers[i].trim());
+                    }
+                    newStudent = new PhdStudent(studentInfo[0], id, studentInfo[1], studentInfo[2], labNumberArray, null);
                     break;
                 case "MS":
                     String[] crnsTaken = studentInfo[1].split(",");
@@ -220,6 +225,18 @@ class MainMenu {
                 System.out.println("GPA: " + undergradStudent.getGpa());
                 System.out.println("Resident: " + undergradStudent.isResident());
             }
+        } else {
+            System.out.println("Student with ID " + id + " not found.");
+        }
+    }
+    
+    private void deleteStudent() {
+        System.out.print("Enter Student’s ID to delete: ");
+        String id = scanner.nextLine();
+        Student student = studentsMap.get(id); // Get student from map
+        if (student != null) {
+            studentsMap.remove(id); // Remove student from map
+            System.out.println("Student with ID " + id + " deleted successfully.");
         } else {
             System.out.println("Student with ID " + id + " not found.");
         }
@@ -421,12 +438,14 @@ abstract class GraduateStudent extends Student {
 class PhdStudent extends GraduateStudent {
 	 // Instance variable
 	 private String researchSubject;
+	 private int[] labCRNs; // Array to store lab CRNs
 	
-	 // Constructor
-	 public PhdStudent(String name, String id, String advisor, String researchSubject, int crn, Map<String, ClassInfo> classInfoMap) throws IdException {
-	     super(name, id, crn, classInfoMap);
-	     this.researchSubject = researchSubject;
-	 }
+	// Constructor
+	    public PhdStudent(String name, String id, String advisor, String researchSubject, int[] labCRNs, Map<String, ClassInfo> classInfoMap) throws IdException {
+	        super(name, id, 0, classInfoMap); // Pass 0 for CRN since it's not used in Ph.D. students
+	        this.researchSubject = researchSubject;
+	        this.labCRNs = labCRNs;
+	    }
 	
 	 // Define the getResearchSubject method
 	 public String getResearchSubject() {
