@@ -827,11 +827,13 @@ class ClassInfo {
                     classInfoList.add(currentClass);
                     // Read lab locations
                     while ((line = br.readLine()) != null) {
-                        if (line.split(",\\s*").length > 2) {
+                        String[] labParts = line.split(",\\s*"); // Split lab line
+                        if (labParts.length > 2) {
                             br.reset(); //return to last marked position to allow the current line, which is a class and NOT a lab, to be read as a class next loop itteration
                             break; // Break if line contains class information
                         }
-                        currentClass.addLabLocation(line.trim());
+                        currentClass.addLabNumber(labParts[0].trim());
+                        currentClass.addLabLocation(labParts[1].trim());
                         br.mark(1000); //mark location to return to if next line does NOT have lab data
                     }
                 } else {
