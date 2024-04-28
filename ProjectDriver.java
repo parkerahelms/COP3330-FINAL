@@ -84,6 +84,7 @@ class MainMenu {
             System.out.println("c. Delete a student");
             System.out.println("d. Print the fee invoice of a student by ID");
             System.out.println("e. Print all students grouped by type");
+            System.out.println("x. Return to the main menu");
             System.out.print("Choose an option: ");
             char choice = scanner.nextLine().charAt(0);
 
@@ -103,6 +104,8 @@ class MainMenu {
                 case 'e':
                     printAllStudentsGroupedByType();
                     break;
+                case 'x':
+                    return; // Return to main menu
                 default:
                     System.out.println("Invalid choice. Please try again.");
                     studentManagement();
@@ -298,7 +301,7 @@ class MainMenu {
             System.out.println("a. Search for a class or lab using the class/lab number");
             System.out.println("b. Delete a class (and associated labs)");
             System.out.println("c. Add a lab to a class (when applicable)");
-            System.out.println("d. Display the list of classes and labs");
+            System.out.println("x. Return to the main menu");
             System.out.print("Choose an option: ");
             char choice = scanner.nextLine().charAt(0);
 
@@ -310,11 +313,10 @@ class MainMenu {
                     // Implement deleteClass() method
                     break;
                 case 'c':
-                    // Implement addLabToClass() method
+                	addLabToClass();
                     break;
-                case 'd':
-                    // Implement displayClassesAndLabs() method
-                    break;
+                case 'x':
+                	return; // Return to main menu
                 default:
                     System.out.println("Invalid choice. Please try again.");
                     classManagement();
@@ -339,16 +341,20 @@ class MainMenu {
                     System.out.println("Class found:");
                     System.out.println(classInfo);
                     found = true;
+                    break; // Exit loop once class is found
                 }
                 // Check if the search query matches any lab number for this class
-                for (int i = 0; i < classInfo.getLabNumbers().size(); i++) {
-                    if (classInfo.getLabNumbers().get(i).equalsIgnoreCase(searchQuery)) {
-                        System.out.println("Lab found:");
-                        System.out.println("Class: " + classInfo.getClassNumber());
-                        System.out.println("Lab Number: " + classInfo.getLabNumbers().get(i));
-                        System.out.println("Lab Location: " + classInfo.getLabLocations().get(i));
-                        System.out.println("Lab for: " + classInfo.getTitle()); // Print class title
-                        found = true;
+                if (classInfo.getLabNumbers() != null) {
+                    for (int i = 0; i < classInfo.getLabNumbers().size(); i++) {
+                        if (classInfo.getLabNumbers().get(i).equalsIgnoreCase(searchQuery)) {
+                            System.out.println("Lab found:");
+                            System.out.println("Class: " + classInfo.getClassNumber());
+                            System.out.println("Lab Number: " + classInfo.getLabNumbers().get(i));
+                            System.out.println("Lab Location: " + classInfo.getLabLocations().get(i));
+                            System.out.println("Lab for: " + classInfo.getTitle()); // Print class title
+                            found = true;
+                            break; // Exit loop once lab is found
+                        }
                     }
                 }
             }
@@ -362,6 +368,40 @@ class MainMenu {
             System.out.println("Error: Null pointer exception occurred. Please ensure classInfoList is properly initialized.");
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
+        }
+    }
+    
+    private void addLabToClass() {
+        try {
+            System.out.print("Enter Class Number to add lab: ");
+            String classNumber = scanner.nextLine();
+            ClassInfo classInfo = null;
+            for (ClassInfo info : classInfoList) {
+                if (info.getClassNumber().equals(classNumber)) {
+                    classInfo = info;
+                    break;
+                }
+            }
+            if (classInfo == null) {
+                System.out.println("Class with the given number not found.");
+                return;
+            }
+            if (classInfo.isHasLab()) {
+                System.out.println("This class already has a lab assigned.");
+                return;
+            }
+
+            System.out.print("Enter Lab Number: ");
+            String labNumber = scanner.nextLine();
+            System.out.print("Enter Lab Location: ");
+            String labLocation = scanner.nextLine();
+
+            classInfo.addLab(labNumber, labLocation);
+            System.out.println("Lab added to the class successfully.");
+        } catch (InputMismatchException e) {
+            System.out.println("Invalid input. Please enter valid data.");
+        } catch (Exception e) {
+            System.out.println("An error occurred: " + e.getMessage());
         }
     }
 }
@@ -669,12 +709,19 @@ class ClassInfo {
         this.labLocations = new ArrayList<>();
         this.labNumbers = new ArrayList<>();
     }
+    
+    public void addLab(String labNumber, String labLocation) {
+        labNumbers.add(labNumber);
+        labLocations.add(labLocation);
+        hasLab = true;
+    }
 
     public static List<ClassInfo> readClassInfoFromFile(String fileName) {
         List<ClassInfo> classInfoList = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
             String line;
             ClassInfo currentClass = null;
+            boolean isLabSection = false; // Flag to indicate if currently parsing lab section
             while ((line = br.readLine()) != null) {
                 String[] parts = line.split(",\\s*"); // Split with comma followed by optional whitespace
                 if (parts.length < 6) {
@@ -704,24 +751,22 @@ class ClassInfo {
                     creditHours = Integer.parseInt(parts[7]);
                 }
 
-                if (hasLab) {
-                    currentClass = new ClassInfo(classNumber, prefix, title, level, modality, location, hasLab, creditHours);
-                    classInfoList.add(currentClass);
-                    // Read lab numbers and locations
-                    while ((line = br.readLine()) != null) {
-                        if (line.trim().isEmpty()) {
-                            break; // Break if empty line encountered
-                        }
-                        String[] labParts = line.split(",\\s*"); // Split lab line
-                        if (labParts.length != 2) {
-                            continue; // Skip invalid lab lines
-                        }
-                        currentClass.addLabNumber(labParts[0].trim());
-                        currentClass.addLabLocation(labParts[1].trim());
+                if (!isLabSection) {
+                    if (hasLab) {
+                        currentClass = new ClassInfo(classNumber, prefix, title, level, modality, location, hasLab, creditHours);
+                        classInfoList.add(currentClass);
+                        isLabSection = true; // Start parsing lab section
+                    } else {
+                        ClassInfo classInfo = new ClassInfo(classNumber, prefix, title, level, modality, location, hasLab, creditHours);
+                        classInfoList.add(classInfo);
                     }
                 } else {
-                    ClassInfo classInfo = new ClassInfo(classNumber, prefix, title, level, modality, location, hasLab, creditHours);
-                    classInfoList.add(classInfo);
+                    // Check if it's a new class
+                    if (parts.length >= 6) {
+                        isLabSection = false; // End of lab section
+                    } else {
+                        currentClass.addLab(parts[0].trim(), parts[1].trim());
+                    }
                 }
             }
         } catch (IOException e) {
