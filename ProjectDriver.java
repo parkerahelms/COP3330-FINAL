@@ -156,7 +156,7 @@ class MainMenu {
             // Input remaining information based on student type
             String[] studentInfo;
             if (studentType.equals("PHD")) {
-                System.out.print("Enter Name, Advisor | Research Subject | and Lab CRNs (comma-separated): ");
+                System.out.print("Enter Name| Advisor | Research Subject | and Lab CRNs (comma-separated): ");
             } else if (studentType.equals("MS")) {
                 System.out.print("Enter Name | Grad CRNs Taken | and CRN: ");
             } else if (studentType.equals("UNDERGRAD")) {
@@ -169,7 +169,7 @@ class MainMenu {
             Student newStudent = null;
             switch (studentType) {
                 case "PHD":
-                    String[] labNumbers = studentInfo[2].split(",");
+                    String[] labNumbers = studentInfo[3].split(",");
                     int[] labNumberArray = new int[labNumbers.length];
                     for (int i = 0; i < labNumbers.length; i++) {
                         labNumberArray[i] = Integer.parseInt(labNumbers[i].trim());
