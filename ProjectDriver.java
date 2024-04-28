@@ -62,29 +62,24 @@ for (ClassInfo classInfo : classInfoList) {
 //List<ClassInfo> classInfoList = ClassInfo.readClassInfoFromFile("lect.txt");
 
 public class ProjectDriver {
-
     public static void main(String[] args) {
-    	
-    	
-    	MainMenu mainMenu = new MainMenu();
+    	List<ClassInfo> classInfoList = ClassInfo.readClassInfoFromFile("lect.txt");
+        MainMenu mainMenu = new MainMenu(classInfoList);
         while (true) {
             mainMenu.displayMainMenu();
         }
-    	
-
-    	
     }
-
-
 }
 //---------------------------
 class MainMenu {
     private Scanner scanner;
     private Map<String, Student> studentsMap; // Map to store students by ID
+    private List<ClassInfo> classInfoList;
 
-    public MainMenu() {
+    public MainMenu(List<ClassInfo> classInfoList) {
         scanner = new Scanner(System.in);
         studentsMap = new HashMap<>();
+        this.classInfoList = classInfoList; // Initialize classInfoList
     }
 
     public void displayMainMenu() {
@@ -113,6 +108,9 @@ class MainMenu {
         }
     }
 
+    
+    //Student Management section:
+  //-----------------------------------------------------------------------------------------------------------------------------
     private void studentManagement() {
         System.out.println("\nStudent Management:");
         System.out.println("a. Add a student");
@@ -137,7 +135,7 @@ class MainMenu {
             	printFeeInvoiceById();
                 break;
             case 'e':
-                // Implement printAllStudentsGroupedByType() method
+            	printAllStudentsGroupedByType();
                 break;
             default:
                 System.out.println("Invalid choice. Please try again.");
@@ -252,6 +250,49 @@ class MainMenu {
             System.out.println("Student with ID " + id + " not found.");
         }
     }
+    
+    private void printAllStudentsGroupedByType() {
+        Map<String, List<Student>> studentsByType = new HashMap<>();
+        for (Student student : studentsMap.values()) {
+            String type = "";
+            if (student instanceof PhdStudent) {
+                type = "PhD";
+            } else if (student instanceof MsStudent) {
+                type = "MS";
+            } else if (student instanceof UndergraduateStudent) {
+                type = "Undergrad";
+            }
+
+            List<Student> studentsOfType = studentsByType.getOrDefault(type, new ArrayList<>());
+            studentsOfType.add(student);
+            studentsByType.put(type, studentsOfType);
+        }
+
+        for (Map.Entry<String, List<Student>> entry : studentsByType.entrySet()) {
+            String type = entry.getKey();
+            List<Student> studentsOfType = entry.getValue();
+
+            System.out.println(type + " Students:");
+            for (Student student : studentsOfType) {
+                System.out.println("Name: " + student.getName());
+                System.out.println("ID: " + student.getId());
+                if (student instanceof PhdStudent) {
+                    PhdStudent phdStudent = (PhdStudent) student;
+                    System.out.println("Research Subject: " + phdStudent.getResearchSubject());
+                } else if (student instanceof MsStudent) {
+                    MsStudent msStudent = (MsStudent) student;
+                    System.out.println("Grad CRNs Taken: " + Arrays.toString(msStudent.getGradCrnsTaken()));
+                } else if (student instanceof UndergraduateStudent) {
+                    UndergraduateStudent undergradStudent = (UndergraduateStudent) student;
+                    System.out.println("Undergrad CRNs Taken: " + Arrays.toString(undergradStudent.getUndergradCrnsTaken()));
+                    System.out.println("GPA: " + undergradStudent.getGpa());
+                    System.out.println("Resident: " + undergradStudent.isResident());
+                }
+                System.out.println(); // Add a newline for better readability between students
+            }
+        }
+    }
+  //-----------------------------------------------------------------------------------------------------------------------------
 
     private void classManagement() {
         System.out.println("\nClass Management:");
@@ -264,7 +305,7 @@ class MainMenu {
 
         switch (choice) {
             case 'a':
-                // Implement searchClassOrLab() method
+            	searchClassOrLab();
                 break;
             case 'b':
                 // Implement deleteClass() method
@@ -279,6 +320,25 @@ class MainMenu {
                 System.out.println("Invalid choice. Please try again.");
                 classManagement();
         }
+    }
+    
+    private void searchClassOrLab() {
+        System.out.print("Enter the Class/Lab Number: ");
+        String classLabNumber = scanner.nextLine();
+
+        // Search for the class/lab in the list of class information
+        for (ClassInfo classInfo : classInfoList) {
+            if (classInfo.getClassNumber().equals(classLabNumber)) {
+                // Print details of the class/lab if found
+                System.out.println("Lab for [" + classInfo.getClassNumber() + ", " + classInfo.getPrefix() + ", " + classInfo.getTitle() + "]");
+                if (!classInfo.getModality().equalsIgnoreCase("Online")) {
+                    System.out.println("Lab Room " + classInfo.getLocation());
+                }
+                return; // Exit the loop after finding the class/lab
+            }
+        }
+        // If the class/lab is not found
+        System.out.println("Class/Lab with number " + classLabNumber + " not found.");
     }
 }
 
