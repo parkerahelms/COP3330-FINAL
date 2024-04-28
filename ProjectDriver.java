@@ -1,12 +1,15 @@
 // Final Project
 // Group Members: Logan Gerhard, Parker Helms
 
-
-
-import java.io.*;
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.InputMismatchException;
 import java.util.Set;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -293,7 +296,6 @@ class MainMenu {
   //-----------------------------------------------------------------------------------------------------------------------------
 
     private void classManagement() {
-<<<<<<< HEAD
         try {
             System.out.println("\nClass Management:");
             System.out.println("a. Search for a class or lab using the class/lab number");
@@ -308,7 +310,7 @@ class MainMenu {
                     searchClassOrLab(classInfoList, scanner);
                     break;
                 case 'b':
-                    // Implement deleteClass() method
+                	deleteClass(classInfoList, scanner);
                     break;
                 case 'c':
                 	addLabToClass();
@@ -338,31 +340,34 @@ class MainMenu {
                 if (classInfo.getClassNumber().equalsIgnoreCase(searchQuery)) {
                     System.out.println("Class found:");
                     System.out.println(classInfo);
-=======
-        System.out.println("\nClass Management:");
-        System.out.println("a. Search for a class or lab using the class/lab number");
-        System.out.println("b. Delete a class (and associated labs)");
-        System.out.println("c. Add a lab to a class (when applicable)");
-        System.out.println("d. Display the list of classes and labs");
-        System.out.print("Choose an option: ");
-        char choice = scanner.nextLine().charAt(0);
-
-        switch (choice) {
-            case 'a':
-            	searchClassOrLab(classInfoList, scanner);
-                break;
-            case 'b':
-                deleteClass(classInfoList, scanner);
-                break;
-            case 'c':
-                // Implement addLabToClass() method
-                break;
-            case 'd':
-                // Implement displayClassesAndLabs() method
-                break;
-            default:
-                System.out.println("Invalid choice. Please try again.");
-                classManagement();
+                    found = true;
+                    break; // Exit loop once class is found
+                }
+                // Check if the search query matches any lab number for this class
+                if (classInfo.getLabNumbers() != null) {
+                    for (int i = 0; i < classInfo.getLabNumbers().size(); i++) {
+                        if (classInfo.getLabNumbers().get(i).equalsIgnoreCase(searchQuery)) {
+                            System.out.println("Lab found:");
+                            System.out.println("Class: " + classInfo.getClassNumber());
+                            System.out.println("Lab Number: " + classInfo.getLabNumbers().get(i));
+                            System.out.println("Lab Location: " + classInfo.getLabLocations().get(i));
+                            System.out.println("Lab for: " + classInfo.getTitle()); // Print class title
+                            found = true;
+                            break; // Exit loop once lab is found
+                        }
+                    }
+                }
+            }
+            if (!found) {
+                System.out.println("No matching class or lab found.");
+            }
+        } catch (InputMismatchException e) {
+            System.out.println("Error: Invalid input format. Please enter a valid class/lab number.");
+            scanner.nextLine(); // Clear scanner buffer
+        } catch (NullPointerException e) {
+            System.out.println("Error: Null pointer exception occurred. Please ensure classInfoList is properly initialized.");
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
         }
     }
     
@@ -395,64 +400,6 @@ class MainMenu {
             System.out.println("No matching class or lab to delete found.");
         } else
             ClassInfo.writeClassInfoToFile("lect.txt",classInfoList);
-
-    }
-
-    public static void searchClassOrLab(List<ClassInfo> classInfoList, Scanner scanner) {
-        System.out.print("Enter the Class/Lab Number to DELETE: ");
-        String searchQuery = scanner.nextLine();
-        boolean found = false;
-        for (ClassInfo classInfo : classInfoList) {
-            // Check if the search query matches the class number
-            if (classInfo.getClassNumber().equalsIgnoreCase(searchQuery)) {
-                System.out.println("Class found:");
-                System.out.println(classInfo);
-                found = true;
-            }
-            // Check if the search query matches any lab number for this class
-            for (int i = 0; i < classInfo.getLabNumbers().size(); i++) {
-                if (classInfo.getLabNumbers().get(i).equalsIgnoreCase(searchQuery)) {
-                    System.out.println("Lab found:");
-                    System.out.println("Class: " + classInfo.getClassNumber());
-                    System.out.println("Lab Number: " + classInfo.getLabNumbers().get(i));
-                    System.out.println("Lab Location: " + classInfo.getLabLocations().get(i));
->>>>>>> Parker-2
-                    found = true;
-                    break; // Exit loop once class is found
-                }
-                // Check if the search query matches any lab number for this class
-                if (classInfo.getLabNumbers() != null) {
-                    for (int i = 0; i < classInfo.getLabNumbers().size(); i++) {
-                        if (classInfo.getLabNumbers().get(i).equalsIgnoreCase(searchQuery)) {
-                            System.out.println("Lab found:");
-                            System.out.println("Class: " + classInfo.getClassNumber());
-                            System.out.println("Lab Number: " + classInfo.getLabNumbers().get(i));
-                            System.out.println("Lab Location: " + classInfo.getLabLocations().get(i));
-                            System.out.println("Lab for: " + classInfo.getTitle()); // Print class title
-                            found = true;
-                            break; // Exit loop once lab is found
-                        }
-                    }
-                }
-            }
-<<<<<<< HEAD
-            if (!found) {
-                System.out.println("No matching class or lab found.");
-            }
-        } catch (InputMismatchException e) {
-            System.out.println("Error: Invalid input format. Please enter a valid class/lab number.");
-            scanner.nextLine(); // Clear scanner buffer
-        } catch (NullPointerException e) {
-            System.out.println("Error: Null pointer exception occurred. Please ensure classInfoList is properly initialized.");
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
-=======
-        }
-        if (!found) {
-            System.out.println("No matching class or lab found. Class was not deleted.");
-
->>>>>>> Parker-2
-        }
 
     }
     
@@ -490,8 +437,6 @@ class MainMenu {
         }
     }
 }
-
-
 
 
 //---------------------------
@@ -797,12 +742,6 @@ class ClassInfo {
         this.labNumbers = new ArrayList<>();
     }
     
-    public void addLab(String labNumber, String labLocation) {
-        labNumbers.add(labNumber);
-        labLocations.add(labLocation);
-        hasLab = true;
-    }
-
     public static void writeClassInfoToFile(String fileName,List<ClassInfo> classInfoList) {
         //check for existing file, delete if nessisary
         File f = new File(fileName);
@@ -823,7 +762,7 @@ class ClassInfo {
                                 + classInfo.getModality() + ","
                                 + classInfo.getLevel() + ","
                                 + classInfo.getLocation() + ","
-                                + classInfo.hasLab() + ","
+                                + classInfo.isHasLab() + ","
                                 + classInfo.getCreditHours() + "\n"
                 );
                 if (classInfo.hasLab) {
@@ -841,6 +780,12 @@ class ClassInfo {
         }
 
 
+    }
+    
+    public void addLab(String labNumber, String labLocation) {
+        labNumbers.add(labNumber);
+        labLocations.add(labLocation);
+        hasLab = true;
     }
 
     public static List<ClassInfo> readClassInfoFromFile(String fileName) {
@@ -987,12 +932,8 @@ class ClassInfo {
 		this.location = location;
 	}
 
-	public String hasLab() {
-		if (hasLab) {
-            return "YES";
-        }
-        else
-            return "NO";
+	public boolean isHasLab() {
+		return hasLab;
 	}
 
 	public void setHasLab(boolean hasLab) {
